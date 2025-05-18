@@ -114,7 +114,7 @@ const TodoListScreen = ({ navigation }) => {
       </Text>
 
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 5, textAlign: 'center' }}>
-        DANH SÁCH TODO
+        DANH SÁCH GHI CHÚ
       </Text>
     </View>
 

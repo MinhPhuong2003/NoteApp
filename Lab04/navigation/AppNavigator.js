@@ -8,15 +8,14 @@ import EditTodoScreen from '../screens/EditTodoScreen';
 import TodoDetailScreen from '../screens/TodoDetailScreen';
 import AddTodoScreen from '../screens/AddTodoScreen';
 import TabNavigatorScreen from '../navigation/TabNavigatorScreen';
+import MenuScreen from '../screens/MenuScreen';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
   return (
     <Stack.Navigator initialRouteName={user ? 'TodoList' : 'Login'}>
@@ -24,9 +23,14 @@ const AppNavigator = () => {
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerTitle: 'Register' }} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerTitle: 'Forgot Password' }} />
       <Stack.Screen name="TodoList" component={TabNavigatorScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="EditTodo" component={EditTodoScreen} options={{ headerTitle: 'EditTodo' }}/>
-      <Stack.Screen name="TodoDetail" component={TodoDetailScreen} options={{ headerTitle: 'TodoDetail' }}/>
-      <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'AddTodo' }}/>
+      <Stack.Screen 
+        name="MenuList" 
+        component={MenuScreen} 
+        options={{ headerShown: false, presentation: 'transparentModal' }} 
+      />
+      <Stack.Screen name="EditTodo" component={EditTodoScreen} options={{ headerTitle: 'Edit Todo' }} />
+      <Stack.Screen name="TodoDetail" component={TodoDetailScreen} options={{ headerTitle: 'Todo Detail' }} />
+      <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'Add Todo' }} />
     </Stack.Navigator>
   );
 };
