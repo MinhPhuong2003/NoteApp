@@ -71,43 +71,68 @@ const MenuScreen = ({ closeMenu }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profile}>
-        <Image
-          source={{ uri: userData?.photoURL || 'https://via.placeholder.com/90' }}
-          style={styles.avatar}
-        />
-        <Text style={styles.name}>{userData?.fullName || 'User'}</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.menuRow}
-        onPress={() => {
-          navigation.navigate('TodoList', { screen: 'TodoList' });
-          closeMenu();
-        }}
-      >
-        <Icon name="document-text-outline" size={22} color="#FF6700" />
-        <Text style={styles.menuItem}>Notes</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.menuRow}
-        onPress={() => {
-          navigation.navigate('TodoList', { screen: 'Profile' });
-          closeMenu();
-        }}
-      >
-        <Icon name="person-outline" size={22} color="#FF6700" />
-        <Text style={styles.menuItem}>My Profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuRow} onPress={handleLogout}>
-        <Icon name="log-out-outline" size={22} color="#FF6700" />
-        <Text style={styles.menuItem}>Logout</Text>
-      </TouchableOpacity>
+  <View style={styles.container}>
+    <View style={styles.profile}>
+      <Image
+        source={{ uri: userData?.photoURL || 'https://via.placeholder.com/90' }}
+        style={styles.avatar}
+      />
+      <Text style={styles.name}>{userData?.fullName || 'User'}</Text>
     </View>
-  );
+
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={() => {
+        navigation.navigate('TodoList', { screen: 'TodoList' });
+        closeMenu();
+      }}
+    >
+      <Icon name="document-text-outline" size={22} color="#FF6700" />
+      <Text style={styles.menuItem}>Notes</Text>
+    </TouchableOpacity>
+
+    {/* Phần Yêu thích mới */}
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={() => {
+        navigation.navigate('Favorites');
+        closeMenu();
+      }}
+    >
+      <Icon name="heart-outline" size={22} color="#FF6700" />
+      <Text style={styles.menuItem}>Favorites</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={() => {
+        navigation.navigate('TodoList', { screen: 'Profile' });
+        closeMenu();
+      }}
+    >
+      <Icon name="person-outline" size={22} color="#FF6700" />
+      <Text style={styles.menuItem}>My Profile</Text>
+    </TouchableOpacity>
+
+    {/* Phần Thùng rác mới */}
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={() => {
+        navigation.navigate('Trash');
+        closeMenu();
+      }}
+    >
+      <Icon name="trash-outline" size={22} color="#FF6700" />
+      <Text style={styles.menuItem}>Trash</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.menuRow} onPress={handleLogout}>
+      <Icon name="log-out-outline" size={22} color="#FF6700" />
+      <Text style={styles.menuItem}>Logout</Text>
+    </TouchableOpacity>
+  </View>
+);
+
 };
 
 export default MenuScreen;

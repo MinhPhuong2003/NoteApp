@@ -109,9 +109,9 @@ const TodoListScreen = ({ navigation }) => {
   return (
   <View style={{ flex: 1, padding: 16 }}>
     <View>
-      <Text style={{ fontSize: 20, marginBottom: 5, textAlign: 'center' }}>
-        Xin chào, {user?.displayName || user?.email || 'Khách'} 👋
-      </Text>
+      {/* <Text style={{ fontSize: 20, marginBottom: 5, textAlign: 'center' }}>
+      Xin chào, {user?.displayName || user?.email || 'Khách'} 👋
+    </Text> */}
 
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 5, textAlign: 'center' }}>
         DANH SÁCH GHI CHÚ
@@ -125,7 +125,6 @@ const TodoListScreen = ({ navigation }) => {
       ListEmptyComponent={<Text style={{ textAlign: 'center' }}>Không có todo nào</Text>}
     />
 
-    {/* Nút dấu cộng để dẫn đến AddTodoScreen */}
     <TouchableOpacity
       style={{
         position: 'absolute',
@@ -141,7 +140,7 @@ const TodoListScreen = ({ navigation }) => {
       }}
       onPress={() => navigation.navigate('AddTodoScreen')}
     >
-      <Icon name="plus" size={30} color="#fff" />
+      <Icon name="file-text" size={30} color="#fff" />
     </TouchableOpacity>
   </View>
 );

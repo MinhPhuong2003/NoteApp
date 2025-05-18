@@ -9,6 +9,7 @@ import TodoDetailScreen from '../screens/TodoDetailScreen';
 import AddTodoScreen from '../screens/AddTodoScreen';
 import TabNavigatorScreen from '../navigation/TabNavigatorScreen';
 import MenuScreen from '../screens/MenuScreen';
+import TrashListScreen from '../screens/TrashListScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ const AppNavigator = () => {
       <Stack.Screen name="EditTodo" component={EditTodoScreen} options={{ headerTitle: 'Edit Todo' }} />
       <Stack.Screen name="TodoDetail" component={TodoDetailScreen} options={{ headerTitle: 'Todo Detail' }} />
       <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'Add Todo' }} />
+      <Stack.Screen name="Trash" component={TrashListScreen} options={{ headerTitle: 'Trash' }} />
     </Stack.Navigator>
   );
 };

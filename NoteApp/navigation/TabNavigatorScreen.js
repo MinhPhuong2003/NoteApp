@@ -68,6 +68,11 @@ const TabNavigatorScreen = () => {
           options={{
             title: 'Notes',
             headerLeft: () => <MenuButton onPress={handleMenuPress} />,
+            headerRight: () => (
+              <TouchableOpacity onPress={() => alert('Search pressed!')} style={{ marginRight: 15 }}>
+                <Ionicons name="search-outline" size={25} color="#007aff" />
+              </TouchableOpacity>
+            ),
           }}
         />
         <Tab.Screen
