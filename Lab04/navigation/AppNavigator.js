@@ -7,7 +7,7 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import EditTodoScreen from '../screens/EditTodoScreen';
 import TodoDetailScreen from '../screens/TodoDetailScreen';
 import AddTodoScreen from '../screens/AddTodoScreen';
-import TabNavigatorScreen from '../screens/TabNavigatorScreen';
+import TabNavigatorScreen from '../navigation/TabNavigatorScreen';
 
 const Stack = createStackNavigator();
 
