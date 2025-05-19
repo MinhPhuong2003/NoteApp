@@ -1,12 +1,9 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LoginScreen from "./THB1/LoginScreen";
-import HomeScreen from "./THB1/HomeScreen";
 // import AppNavigator from './RestaurantManagement/src/navigation/AppNavigator';
 import AppNavigator from './NoteApp/navigation/AppNavigator';
 import { AuthProvider } from './NoteApp/context/AuthContext';
-import TabNavigator from './THB3/navigators/TabNavigator';
 import firebase from '@react-native-firebase/app';
 
 // Định nghĩa các màn hình trong stack
