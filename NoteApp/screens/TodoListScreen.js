@@ -21,29 +21,35 @@ const TodoListScreen = ({ navigation }) => {
   const user = auth().currentUser;
 
   React.useEffect(() => {
-    if (!user?.uid) return;
+  if (!user?.uid) return;
 
-    const unsubscribe = firestore()
-      .collection('todos')
-      .where('userId', '==', user.uid)
-      .where('isDeleted', '==', false)
-      .onSnapshot(
-        (querySnapshot) => {
-          const data = [];
-          querySnapshot?.forEach((doc) => {
-            data.push({ ...doc.data(), id: doc.id });
-          });
-          setTodos(data);
-        },
-        (error) => {
-          console.error("❌ Lỗi Firestore khi lấy danh sách ghi chu:", error.message);
-          Alert.alert("Lỗi", "Không thể tải danh sách ghi chu.");
-          setTodos([]);
-        }
-      );
+  const unsubscribe = firestore()
+    .collection('todos')
+    .where('userId', '==', user.uid)
+    .where('isDeleted', '==', false)
+    .onSnapshot(
+      (querySnapshot) => {
+        const data = [];
+        querySnapshot?.forEach((doc) => {
+          data.push({ ...doc.data(), id: doc.id });
+        });
+        // Sắp xếp: các item isFavorite true lên trên đầu
+        data.sort((a, b) => {
+          if (a.isFavorite === b.isFavorite) return 0;
+          return a.isFavorite ? -1 : 1;
+        });
+        setTodos(data);
+      },
+      (error) => {
+        console.error("❌ Lỗi Firestore khi lấy danh sách ghi chu:", error.message);
+        Alert.alert("Lỗi", "Không thể tải danh sách ghi chu.");
+        setTodos([]);
+      }
+    );
 
-    return () => unsubscribe();
-  }, [user?.uid]);
+  return () => unsubscribe();
+}, [user?.uid]);
+
 
   const viewTodoDetail = (todo) => {
     if (!user) {
@@ -74,6 +80,21 @@ const TodoListScreen = ({ navigation }) => {
     } catch (error) {
       console.error("❌ Lỗi khi cập nhật isDeleted:", error);
       Alert.alert("Lỗi", "Không thể chuyển ghi chú vào thùng rác.");
+    }
+  };
+
+  const toggleFavorite = async (item) => {
+    if (!user) {
+      Alert.alert("Lỗi", "Vui lòng đăng nhập để thực hiện thao tác này.");
+      return;
+    }
+    try {
+      await firestore().collection('todos').doc(item.id).update({
+        isFavorite: !item.isFavorite,
+      });
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật trạng thái yêu thích:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật trạng thái yêu thích.");
     }
   };
 
@@ -117,8 +138,18 @@ const TodoListScreen = ({ navigation }) => {
               ]
             )
           }
+          style={{ marginBottom: 5 }}
         >
           <Icon name="trash" size={20} color="red" />
+        </TouchableOpacity>
+
+        {/* Icon trái tim yêu thích */}
+        <TouchableOpacity onPress={() => toggleFavorite(item)}>
+          <Icon
+            name={item.isFavorite ? 'heart' : 'heart-o'}
+            size={20}
+            color={item.isFavorite ? 'red' : '#888'}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -128,7 +159,10 @@ const TodoListScreen = ({ navigation }) => {
     <View style={{ flex: 1, padding: 16 }}>
       <View>
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 5, textAlign: 'center' }}>
-          DANH SÁCH GHI CHÚ
+          TẤT CẢ GHI CHÚ
+        </Text>
+        <Text style={{ fontSize: 14, color: '#666', textAlign: 'center', marginTop: 4 }}>
+          ({todos.length} ghi chú)
         </Text>
       </View>
 

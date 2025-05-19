@@ -22,11 +22,11 @@ const AddTodoScreen = ({ navigation }) => {
       isDeleted: false,
       createdAt: firestore.FieldValue.serverTimestamp(),
     });
-    Alert.alert('✅ Thành công', 'Đã thêm mới todo thành công!');
+    Alert.alert('✅ Thành công', 'Đã thêm mới ghi chú thành công!');
     navigation.goBack();
   } catch (error) {
     console.error('Lỗi:', error);
-    Alert.alert('❌ Lỗi', 'Không thể thêm todo');
+    Alert.alert('❌ Lỗi', 'Không thể thêm ghi chú');
   }
 };
 
@@ -39,7 +39,7 @@ const AddTodoScreen = ({ navigation }) => {
       <View style={{ marginBottom: 16 }}>
         <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 6 }}>🖊️ Tiêu đề:</Text>
         <TextInput
-          placeholder="Nhập tiêu đề Todo..."
+          placeholder="Nhập tiêu đề ghi chú..."
           value={title}
           onChangeText={setTitle}
           style={{

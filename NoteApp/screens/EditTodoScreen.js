@@ -13,7 +13,7 @@ const EditTodoScreen = () => {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('⚠️ Lỗi', 'Vui lòng nhập tiêu đề Todo.');
+      Alert.alert('⚠️ Lỗi', 'Vui lòng nhập tiêu đề ghi chú.');
       return;
     }
 
@@ -22,11 +22,11 @@ const EditTodoScreen = () => {
         title,
         description,
       });
-      Alert.alert('✅ Thành công', 'Todo đã được cập nhật.');
+      Alert.alert('✅ Thành công', 'Ghi chú đã được cập nhật.');
       navigation.goBack();
     } catch (error) {
-      console.error('Lỗi khi cập nhật todo:', error);
-      Alert.alert('❌ Lỗi', 'Không thể cập nhật Todo. Vui lòng thử lại.');
+      console.error('Lỗi khi cập nhật ghi chú:', error);
+      Alert.alert('❌ Lỗi', 'Không thể cập nhật ghi chú. Vui lòng thử lại.');
     }
   };
 
@@ -39,7 +39,7 @@ const EditTodoScreen = () => {
       <View style={{ marginBottom: 16 }}>
         <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 6 }}>🖊️ Tiêu đề:</Text>
         <TextInput
-          placeholder="Nhập tiêu đề Todo..."
+          placeholder="Nhập tiêu đề ghi chú..."
           value={title}
           onChangeText={setTitle}
           style={{

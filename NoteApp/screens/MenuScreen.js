@@ -91,7 +91,6 @@ const MenuScreen = ({ closeMenu }) => {
       <Text style={styles.menuItem}>Notes</Text>
     </TouchableOpacity>
 
-    {/* Phần Yêu thích mới */}
     <TouchableOpacity
       style={styles.menuRow}
       onPress={() => {
@@ -114,7 +113,6 @@ const MenuScreen = ({ closeMenu }) => {
       <Text style={styles.menuItem}>My Profile</Text>
     </TouchableOpacity>
 
-    {/* Phần Thùng rác mới */}
     <TouchableOpacity
       style={styles.menuRow}
       onPress={() => {
