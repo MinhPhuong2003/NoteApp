@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -18,38 +25,39 @@ const formatDate = (timestamp) => {
 
 const TodoListScreen = ({ navigation }) => {
   const [todos, setTodos] = React.useState([]);
+  const [searchText, setSearchText] = React.useState('');
   const user = auth().currentUser;
 
   React.useEffect(() => {
-  if (!user?.uid) return;
+    if (!user?.uid) return;
 
-  const unsubscribe = firestore()
-    .collection('todos')
-    .where('userId', '==', user.uid)
-    .where('isDeleted', '==', false)
-    .onSnapshot(
-      (querySnapshot) => {
-        const data = [];
-        querySnapshot?.forEach((doc) => {
-          data.push({ ...doc.data(), id: doc.id });
-        });
-        // Sắp xếp: các item isFavorite true lên trên đầu
-        data.sort((a, b) => {
-          if (a.isFavorite === b.isFavorite) return 0;
-          return a.isFavorite ? -1 : 1;
-        });
-        setTodos(data);
-      },
-      (error) => {
-        console.error("❌ Lỗi Firestore khi lấy danh sách ghi chu:", error.message);
-        Alert.alert("Lỗi", "Không thể tải danh sách ghi chu.");
-        setTodos([]);
-      }
-    );
+    const unsubscribe = firestore()
+      .collection('todos')
+      .where('userId', '==', user.uid)
+      .where('isDeleted', '==', false)
+      .onSnapshot(
+        (querySnapshot) => {
+          const data = [];
+          querySnapshot?.forEach((doc) => {
+            data.push({ ...doc.data(), id: doc.id });
+          });
 
-  return () => unsubscribe();
-}, [user?.uid]);
+          data.sort((a, b) => {
+            if (a.isFavorite === b.isFavorite) return 0;
+            return a.isFavorite ? -1 : 1;
+          });
 
+          setTodos(data);
+        },
+        (error) => {
+          console.error("❌ Lỗi Firestore:", error.message);
+          Alert.alert("Lỗi", "Không thể tải danh sách ghi chú.");
+          setTodos([]);
+        }
+      );
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const viewTodoDetail = (todo) => {
     if (!user) {
@@ -61,7 +69,7 @@ const TodoListScreen = ({ navigation }) => {
 
   const editTodo = (todo) => {
     if (!user) {
-      Alert.alert("Lỗi", "Vui lòng đăng nhập để chỉnh sửa ghi chu.");
+      Alert.alert("Lỗi", "Vui lòng đăng nhập để chỉnh sửa ghi chú.");
       return;
     }
     navigation.navigate('EditTodo', { todo });
@@ -69,7 +77,7 @@ const TodoListScreen = ({ navigation }) => {
 
   const deleteTodo = async (id) => {
     if (!user) {
-      Alert.alert("Lỗi", "Vui lòng đăng nhập để xóa ghi chu.");
+      Alert.alert("Lỗi", "Vui lòng đăng nhập để xoá ghi chú.");
       return;
     }
 
@@ -78,14 +86,14 @@ const TodoListScreen = ({ navigation }) => {
         isDeleted: true,
       });
     } catch (error) {
-      console.error("❌ Lỗi khi cập nhật isDeleted:", error);
-      Alert.alert("Lỗi", "Không thể chuyển ghi chú vào thùng rác.");
+      console.error("❌ Lỗi xoá:", error);
+      Alert.alert("Lỗi", "Không thể xoá ghi chú.");
     }
   };
 
   const toggleFavorite = async (item) => {
     if (!user) {
-      Alert.alert("Lỗi", "Vui lòng đăng nhập để thực hiện thao tác này.");
+      Alert.alert("Lỗi", "Vui lòng đăng nhập để thao tác.");
       return;
     }
     try {
@@ -93,10 +101,15 @@ const TodoListScreen = ({ navigation }) => {
         isFavorite: !item.isFavorite,
       });
     } catch (error) {
-      console.error("❌ Lỗi khi cập nhật trạng thái yêu thích:", error);
+      console.error("❌ Lỗi cập nhật yêu thích:", error);
       Alert.alert("Lỗi", "Không thể cập nhật trạng thái yêu thích.");
     }
   };
+
+  const filteredTodos = todos.filter(todo =>
+    todo.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+    todo.description?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const renderItem = ({ item }) => (
     <View
@@ -143,7 +156,6 @@ const TodoListScreen = ({ navigation }) => {
           <Icon name="trash" size={20} color="red" />
         </TouchableOpacity>
 
-        {/* Icon trái tim yêu thích */}
         <TouchableOpacity onPress={() => toggleFavorite(item)}>
           <Icon
             name={item.isFavorite ? 'heart' : 'heart-o'}
@@ -157,17 +169,64 @@ const TodoListScreen = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <View>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 5, textAlign: 'center' }}>
+      <View style={{ marginBottom: 10 }}>
+        <Text style={{
+          fontSize: 16,
+          fontWeight: 'bold',
+          textAlign: 'left',
+          marginBottom: 4
+        }}>
+          Xin chào, {user?.displayName || 'Người dùng'}!
+        </Text>
+
+        <Text style={{
+          fontSize: 30,
+          color: '#555',
+          textAlign: 'left',
+          marginBottom: 8,
+        }}>
+          Bạn có ghi chú gì để ghi không?📝 
+        </Text>
+
+        <View style={{
+          backgroundColor: '#fff',
+          borderRadius: 24,
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          marginBottom: 12,
+          elevation: 3,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        }}>
+          <Icon name="search" size={18} color="#999" style={{ marginRight: 10 }} />
+          <TextInput
+            placeholder="Tìm kiếm ghi chú..."
+            value={searchText}
+            onChangeText={setSearchText}
+            style={{ flex: 1, fontSize: 14 }}
+            placeholderTextColor="#aaa"
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText('')}>
+              <Icon name="times-circle" size={18} color="#999" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <Text style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>
           TẤT CẢ GHI CHÚ
         </Text>
         <Text style={{ fontSize: 14, color: '#666', textAlign: 'center', marginTop: 4 }}>
-          ({todos.length} ghi chú)
+          ({filteredTodos.length} ghi chú)
         </Text>
       </View>
 
       <FlatList
-        data={todos}
+        data={filteredTodos}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListEmptyComponent={<Text style={{ textAlign: 'center' }}>Không có ghi chú nào</Text>}
