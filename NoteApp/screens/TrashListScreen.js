@@ -92,20 +92,24 @@ const TrashListScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>🗑️ Ghi chú đã xóa</Text>
-      <FlatList
-        data={trashTodos}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 20 }}>
-            Không có ghi chú nào trong thùng rác.
-          </Text>
-        }
-      />
-    </View>
-  );
+  <View style={styles.container}>
+    <Text style={styles.header}>🗑️ Ghi chú đã xóa</Text>
+    <Text style={styles.countText}>{`(${trashTodos.length} ghi chú)`}</Text>
+    <View style={styles.listWrapper}>
+  <FlatList
+    data={trashTodos}
+    keyExtractor={(item) => item.id}
+    renderItem={renderItem}
+    ListEmptyComponent={
+      <Text style={styles.emptyText}>
+        Không có ghi chú nào trong thùng rác.
+      </Text>
+    }
+  />
+</View>
+  </View>
+);
+
 };
 
 export default TrashListScreen;
@@ -143,4 +147,16 @@ const styles = StyleSheet.create({
   iconButton: {
     marginHorizontal: 8,
   },
+  countText: {
+  textAlign: 'center',
+  marginBottom: 10,
+  fontSize: 16,
+  color: '#666',
+},
+emptyText: {
+  textAlign: 'center',
+  marginBottom: 10,
+  fontSize: 16,
+  color: '#666',
+},
 });

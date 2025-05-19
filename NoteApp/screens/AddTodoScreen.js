@@ -9,32 +9,33 @@ const AddTodoScreen = ({ navigation }) => {
   const user = auth().currentUser;
 
   const addTodo = async () => {
-    if (!title.trim()) {
-      Alert.alert('⚠️ Lỗi', 'Vui lòng nhập tiêu đề');
-      return;
-    }
+  if (!title.trim()) {
+    Alert.alert('⚠️ Lỗi', 'Vui lòng nhập tiêu đề');
+    return;
+  }
 
-    try {
-      await firestore().collection('todos').add({
-        title,
-        description,
-        userId: user.uid,
-      });
-      Alert.alert('✅ Thành công', 'Đã thêm mới todo thành công!');
-      navigation.goBack();
-    } catch (error) {
-      console.error('Lỗi:', error);
-      Alert.alert('❌ Lỗi', 'Không thể thêm todo');
-    }
-  };
+  try {
+    await firestore().collection('todos').add({
+      title,
+      description,
+      userId: user.uid,
+      isDeleted: false,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+    });
+    Alert.alert('✅ Thành công', 'Đã thêm mới todo thành công!');
+    navigation.goBack();
+  } catch (error) {
+    console.error('Lỗi:', error);
+    Alert.alert('❌ Lỗi', 'Không thể thêm todo');
+  }
+};
+
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginVertical: 10, textAlign: 'center' }}>
         📝 THÊM MỚI TODO
       </Text>
-
-      {/* Nhóm nhập tiêu đề */}
       <View style={{ marginBottom: 16 }}>
         <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 6 }}>🖊️ Tiêu đề:</Text>
         <TextInput
@@ -49,8 +50,6 @@ const AddTodoScreen = ({ navigation }) => {
           }}
         />
       </View>
-
-      {/* Nhóm nhập mô tả */}
       <View style={{ marginBottom: 16 }}>
         <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 6 }}>📌 Mô tả:</Text>
         <TextInput
@@ -68,8 +67,6 @@ const AddTodoScreen = ({ navigation }) => {
           }}
         />
       </View>
-
-      {/* Nút THÊM MỚI và QUAY LẠI cùng 1 dòng */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableOpacity
           onPress={addTodo}
