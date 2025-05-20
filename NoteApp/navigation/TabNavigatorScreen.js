@@ -1,7 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { View, TouchableOpacity, Animated, Dimensions, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Modal,
+  Text,
+} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+
 import ProfileScreen from '../screens/ProfileScreen';
 import TodoListScreen from '../screens/TodoListScreen';
 import MenuScreen from '../screens/MenuScreen';
@@ -9,6 +20,12 @@ import MenuScreen from '../screens/MenuScreen';
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
 const MENU_WIDTH = width * 0.75;
+
+const SettingsButton = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{ marginRight: 15 }}>
+    <Ionicons name="settings-outline" size={25} color="#000000" />
+  </TouchableOpacity>
+);
 
 const MenuButton = ({ onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ marginLeft: 15 }}>
@@ -18,7 +35,9 @@ const MenuButton = ({ onPress }) => (
 
 const TabNavigatorScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(-MENU_WIDTH)).current;
+  const navigation = useNavigation();
 
   const openMenu = () => {
     setMenuVisible(true);
@@ -45,6 +64,9 @@ const TabNavigatorScreen = () => {
     }
   };
 
+  const openSettings = () => setSettingsVisible(true);
+  const closeSettings = () => setSettingsVisible(false);
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
@@ -68,6 +90,7 @@ const TabNavigatorScreen = () => {
           options={{
             title: 'Notes',
             headerLeft: () => <MenuButton onPress={handleMenuPress} />,
+            headerRight: () => <SettingsButton onPress={openSettings} />,
           }}
         />
         <Tab.Screen
@@ -76,6 +99,7 @@ const TabNavigatorScreen = () => {
           options={{
             title: 'Profile',
             headerLeft: () => <MenuButton onPress={handleMenuPress} />,
+            headerRight: () => <SettingsButton onPress={openSettings} />,
           }}
         />
       </Tab.Navigator>
@@ -89,6 +113,36 @@ const TabNavigatorScreen = () => {
           </View>
         </TouchableWithoutFeedback>
       )}
+
+      {/* Modal popup Settings */}
+      <Modal
+        visible={settingsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeSettings}
+      >
+        <TouchableWithoutFeedback onPress={closeSettings}>
+          <View style={styles.settingsOverlay}>
+            <View style={styles.popupMenu}>
+              <TouchableOpacity
+                style={styles.menuItemContainer}
+                onPress={() => {
+                  closeSettings();
+                  navigation.navigate('ResetPassword');
+                }}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#333"
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={styles.menuItem}>Change Password</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -108,6 +162,36 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#fff',
     padding: 20,
+  },
+  settingsOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 60,
+    paddingRight: 20,
+  },
+  popupMenu: {
+    minWidth: 160,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  menuItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+  },
+  menuItem: {
+    fontSize: 14,
+    color: '#333',
   },
 });
 

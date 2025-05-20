@@ -11,6 +11,7 @@ import TabNavigatorScreen from '../navigation/TabNavigatorScreen';
 import MenuScreen from '../screens/MenuScreen';
 import TrashListScreen from '../screens/TrashListScreen';
 import FavoriteListScreen from '../screens/FavoriteListScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,7 @@ const AppNavigator = () => {
     <Stack.Navigator initialRouteName={user ? 'TodoList' : 'Login'}>
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerTitle: 'Register' }} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerTitle: 'ResetPassword' }} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerTitle: 'Forgot Password' }} />
       <Stack.Screen name="TodoList" component={TabNavigatorScreen} options={{ headerShown: false }} />
       <Stack.Screen 
