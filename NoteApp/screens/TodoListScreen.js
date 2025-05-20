@@ -37,19 +37,22 @@ const TodoListScreen = ({ navigation }) => {
   const user = auth().currentUser;
 
   React.useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user?.uid) return;
-      try {
-        const userDoc = await firestore().collection('USERS').doc(user.uid).get();
-        if (userDoc.exists) {
-          setUserData(userDoc.data());
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+  if (!user?.uid) return;
+
+  const unsubscribe = firestore()
+    .collection('USERS')
+    .doc(user.uid)
+    .onSnapshot(doc => {
+      if (doc.exists) {
+        setUserData(doc.data());
       }
-    };
-    fetchUserData();
-  }, [user?.uid]);
+    }, error => {
+      console.error('Error listening to user data:', error);
+    });
+
+  return () => unsubscribe();
+}, [user?.uid]);
+
 
   React.useEffect(() => {
     if (!user?.uid) return;
