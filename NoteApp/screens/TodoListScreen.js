@@ -2,10 +2,12 @@ import React from 'react';
 import {
   View,
   Text,
+  Image,
   FlatList,
   TouchableOpacity,
   Alert,
   TextInput,
+  StyleSheet,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -20,44 +22,67 @@ const formatDate = (timestamp) => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 };
 
 const TodoListScreen = ({ navigation }) => {
   const [todos, setTodos] = React.useState([]);
   const [searchText, setSearchText] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState('all');
+  const [userData, setUserData] = React.useState(null);
+  const [allTodos, setAllTodos] = React.useState([]);
+  const favoriteTodos = allTodos.filter(todo => todo.isFavorite);
+  const filteredAllTodos = allTodos.filter(todo => todo.title.includes(searchText));
+  const filteredFavoriteTodos = favoriteTodos.filter(todo => todo.title.includes(searchText));
   const user = auth().currentUser;
 
   React.useEffect(() => {
-    if (!user?.uid) return;
+    const fetchUserData = async () => {
+      if (!user?.uid) return;
+      try {
+        const userDoc = await firestore().collection('USERS').doc(user.uid).get();
+        if (userDoc.exists) {
+          setUserData(userDoc.data());
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchUserData();
+  }, [user?.uid]);
 
-    const unsubscribe = firestore()
+  React.useEffect(() => {
+    if (!user?.uid) return;
+    let query = firestore()
       .collection('todos')
       .where('userId', '==', user.uid)
-      .where('isDeleted', '==', false)
-      .onSnapshot(
-        (querySnapshot) => {
-          const data = [];
-          querySnapshot?.forEach((doc) => {
-            data.push({ ...doc.data(), id: doc.id });
-          });
-
-          data.sort((a, b) => {
-            if (a.isFavorite === b.isFavorite) return 0;
-            return a.isFavorite ? -1 : 1;
-          });
-
-          setTodos(data);
-        },
-        (error) => {
-          console.error("❌ Lỗi Firestore:", error.message);
-          Alert.alert("Lỗi", "Không thể tải danh sách ghi chú.");
-          setTodos([]);
+      .where('isDeleted', '==', false);
+    const unsubscribe = query.onSnapshot(
+      (querySnapshot) => {
+        const data = [];
+        querySnapshot?.forEach((doc) => {
+          data.push({ ...doc.data(), id: doc.id });
+        });
+        let filteredData = data;
+        if (activeTab === 'favorites') {
+          filteredData = data.filter((todo) => todo.isFavorite);
         }
-      );
+        filteredData.sort((a, b) => {
+          if (a.isFavorite === b.isFavorite) return 0;
+          return a.isFavorite ? -1 : 1;
+        });
+        setAllTodos(data);
+        setTodos(filteredData);
+      },
+      (error) => {
+        console.error("❌ Lỗi Firestore:", error.message);
+        Alert.alert("Lỗi", "Không thể tải danh sách ghi chú.");
+        setTodos([]);
+      }
+    );
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user?.uid, activeTab]);
 
   const viewTodoDetail = (todo) => {
     if (!user) {
@@ -80,7 +105,6 @@ const TodoListScreen = ({ navigation }) => {
       Alert.alert("Lỗi", "Vui lòng đăng nhập để xoá ghi chú.");
       return;
     }
-
     try {
       await firestore().collection('todos').doc(id).update({
         isDeleted: true,
@@ -106,36 +130,35 @@ const TodoListScreen = ({ navigation }) => {
     }
   };
 
-  const filteredTodos = todos.filter(todo =>
-    todo.title?.toLowerCase().includes(searchText.toLowerCase()) ||
-    todo.description?.toLowerCase().includes(searchText.toLowerCase())
+  const filteredTodos = todos.filter(
+    (todo) =>
+      todo.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+      todo.description?.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const renderItem = ({ item }) => (
-    <View
-      style={{
-        padding: 10,
-        borderBottomWidth: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-      }}
+    <TouchableOpacity
+      onPress={() => viewTodoDetail(item)}
+      style={styles.noteCard}
     >
-      <TouchableOpacity onPress={() => viewTodoDetail(item)} style={{ flex: 1 }}>
-        <View>
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.title}</Text>
-          <Text style={{ color: '#666' }}>{item.description || 'Không có mô tả'}</Text>
-          <Text style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-            Đã thêm lúc: {formatDate(item.createdAt)}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <View style={{ alignItems: 'flex-end' }}>
-        <TouchableOpacity onPress={() => editTodo(item)} style={{ marginBottom: 5 }}>
+      <View style={styles.noteHeader}>
+        <Text style={styles.noteTitle}>{item.title}</Text>
+        <Text style={styles.noteTimestamp}>{formatDate(item.createdAt)}</Text>
+      </View>
+      <Text style={styles.noteDescription} numberOfLines={2}>
+        {item.description || 'Không có mô tả'}
+      </Text>
+      <View style={styles.noteFooter}>
+        <TouchableOpacity onPress={() => toggleFavorite(item)}>
+          <Icon
+            name={item.isFavorite ? 'heart' : 'heart-o'}
+            size={20}
+            color={item.isFavorite ? '#FF4500' : '#888'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => editTodo(item)}>
           <Icon name="edit" size={20} color="orange" />
         </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() =>
             Alert.alert(
@@ -151,63 +174,57 @@ const TodoListScreen = ({ navigation }) => {
               ]
             )
           }
-          style={{ marginBottom: 5 }}
         >
           <Icon name="trash" size={20} color="red" />
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => toggleFavorite(item)}>
-          <Icon
-            name={item.isFavorite ? 'heart' : 'heart-o'}
-            size={20}
-            color={item.isFavorite ? 'red' : '#888'}
-          />
-        </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <View style={{ marginBottom: 10 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: 'bold',
-          textAlign: 'left',
-          marginBottom: 4
-        }}>
-          Xin chào, {user?.displayName || 'Người dùng'}!
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <View style={styles.userInfo}>
+            {userData?.photoURL ? (
+              <Image
+                source={{ uri: userData.photoURL }}
+                style={styles.avatar}
+              />
+            ) : (
+              <Icon
+                name="user-circle"
+                size={40}
+                color="#999"
+                style={{ marginRight: 10 }}
+              />
+            )}
+            <View style={{ flexShrink: 1 }}>
+              <Text style={styles.greeting}>Xin chào,</Text>
+              <Text style={styles.userName}>
+                {user?.displayName || 'Laura'}!
+              </Text>
+            </View>
+          </View>
+          {/*<TouchableOpacity
+            onPress={() => navigation.navigate('MenuList')}
+            style={{ padding: 8 }}
+          >
+            <Icon name="bars" size={24} color="#000000" />
+          </TouchableOpacity>*/}
+        </View>
+        
+        <Text style={styles.notePrompt}>
+          Hôm nay, bạn có chủ đề gì để ghi chú không?
         </Text>
 
-        <Text style={{
-          fontSize: 30,
-          color: '#555',
-          textAlign: 'left',
-          marginBottom: 8,
-        }}>
-          Bạn có ghi chú gì để ghi không?📝 
-        </Text>
-
-        <View style={{
-          backgroundColor: '#fff',
-          borderRadius: 24,
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          marginBottom: 12,
-          elevation: 3,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-        }}>
-          <Icon name="search" size={18} color="#999" style={{ marginRight: 10 }} />
+        <View style={styles.searchContainer}>
+          <Icon name="search" size={18} color="#999" style={{ marginRight: 8 }} />
           <TextInput
             placeholder="Tìm kiếm ghi chú..."
             value={searchText}
             onChangeText={setSearchText}
-            style={{ flex: 1, fontSize: 14 }}
+            style={styles.searchInput}
             placeholderTextColor="#aaa"
           />
           {searchText.length > 0 && (
@@ -216,13 +233,44 @@ const TodoListScreen = ({ navigation }) => {
             </TouchableOpacity>
           )}
         </View>
+      </View>
+            
+      <View style={styles.tabsWrapper}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'all' && styles.activeTab]}
+          onPress={() => setActiveTab('all')}
+        >
+          <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
+            TẤT CẢ{' '}
+            <Text style={styles.countText}>
+              ({filteredAllTodos.length})
+            </Text>
+          </Text>
+        </TouchableOpacity>
 
-        <Text style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>
-          TẤT CẢ GHI CHÚ
-        </Text>
-        <Text style={{ fontSize: 14, color: '#666', textAlign: 'center', marginTop: 4 }}>
-          ({filteredTodos.length} ghi chú)
-        </Text>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'favorites' && styles.activeTab]}
+          onPress={() => setActiveTab('favorites')}
+        >
+          <Text style={[styles.tabText, activeTab === 'favorite' && styles.activeTabText]}>
+            YÊU THÍCH{' '}
+            <Text style={styles.countText}>
+              ({filteredFavoriteTodos.length})
+            </Text>
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'category' && styles.activeTab]}
+          onPress={() => setActiveTab('category')}
+        >
+          <Text style={[styles.tabText, activeTab === 'category' && styles.activeTabText]}>
+            DANH MỤC{' '}
+            {/* <Text style={styles.countText}>
+              ({categories.length})
+            </Text> */}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -230,21 +278,11 @@ const TodoListScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListEmptyComponent={<Text style={{ textAlign: 'center' }}>Không có ghi chú nào</Text>}
+        contentContainerStyle={{ padding: 16 }}
       />
 
       <TouchableOpacity
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-          backgroundColor: '#007AFF',
-          width: 60,
-          height: 60,
-          borderRadius: 30,
-          justifyContent: 'center',
-          alignItems: 'center',
-          elevation: 5,
-        }}
+        style={styles.addButton}
         onPress={() => navigation.navigate('AddTodoScreen')}
       >
         <Icon name="file-text" size={30} color="#fff" />
@@ -252,5 +290,158 @@ const TodoListScreen = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E7E3DC',
+  },
+  headerContainer: {
+    marginTop: 10,
+    marginHorizontal: 10,
+    backgroundColor: '#F7F6F2',
+    borderRadius: 24,
+    padding: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 16,
+    color: '#000',
+  },
+  userName: {
+    fontSize: 20,
+    color: '#000',
+  },
+  searchContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  activeTab: {
+    backgroundColor: '#A3DFFA',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
+  },
+  activeTabText: {
+    color: '#000',
+  },
+  noteCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  noteHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  noteTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  noteTimestamp: {
+    fontSize: 12,
+    color: '#AAA',
+  },
+  noteDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  noteFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 16,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007AFF',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+  tabsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginHorizontal: 16,
+    marginTop: 16,
+    backgroundColor: '#F7F6F2',
+    borderRadius: 24,
+    paddingVertical: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  notePrompt: {
+    fontSize: 20,
+    color: '#666',
+    marginVertical: 6,
+    textAlign: 'left',
+    fontWeight: '500',
+  }
+});
 
 export default TodoListScreen;

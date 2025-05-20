@@ -12,7 +12,7 @@ const MENU_WIDTH = width * 0.75;
 
 const MenuButton = ({ onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ marginLeft: 15 }}>
-    <Ionicons name="menu-outline" size={25} color="#007aff" />
+    <Ionicons name="menu-outline" size={25} color="#000000" />
   </TouchableOpacity>
 );
 
