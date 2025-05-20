@@ -1,12 +1,11 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import AppNavigator from './RestaurantManagement/src/navigation/AppNavigator';
 import AppNavigator from './NoteApp/navigation/AppNavigator';
 import { AuthProvider } from './NoteApp/context/AuthContext';
+import { ThemeProvider } from './NoteApp/context/ThemeContext';
 import firebase from '@react-native-firebase/app';
 
-// Định nghĩa các màn hình trong stack
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
@@ -24,26 +23,15 @@ const firebaseConfig = {
 
 const App = () => {
   return (
-    // THB1
-    //<NavigationContainer>
-      //<Stack.Navigator initialRouteName="Login">
-        //<Stack.Screen name="Login" component={LoginScreen} />
-        //<Stack.Screen name="Home" component={HomeScreen} />
-      //</Stack.Navigator>
-    //</NavigationContainer>
-    // THB3
-    // <NavigationContainer>
-    //    <TabNavigator />
-    // </NavigationContainer>
-    // THB4,5
-    <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
-    /*<NavigationContainer>
-      <AppNavigator />
-    </NavigationContainer>*/
+    
+    <ThemeProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>
+    </ThemeProvider>
+    
   );
 };
 

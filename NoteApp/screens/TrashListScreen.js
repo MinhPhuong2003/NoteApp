@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,12 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { ThemeContext } from '../context/ThemeContext';
 
 const TrashListScreen = () => {
   const [trashTodos, setTrashTodos] = useState([]);
   const user = auth().currentUser;
-
+  const { theme } = useContext(ThemeContext);
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -60,16 +61,20 @@ const TrashListScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <View
+      style={[
+        styles.itemContainer,
+        { borderColor: theme.mode === 'dark' ? '#fff' : '#000' },
+      ]}
+    >
       <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.description}>{item.description || 'Không có mô tả'}</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+        <Text style={[styles.description, { color: theme.text }]}>
+          {item.description || 'Không có mô tả'}
+        </Text>
       </View>
       <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={() => restoreTodo(item.id)}
-          style={styles.iconButton}
-        >
+        <TouchableOpacity onPress={() => restoreTodo(item.id)} style={styles.iconButton}>
           <Icon name="undo" size={20} color="green" />
         </TouchableOpacity>
         <TouchableOpacity
@@ -92,24 +97,25 @@ const TrashListScreen = () => {
   );
 
   return (
-  <View style={styles.container}>
-    <Text style={styles.header}>🗑️ Ghi chú đã xóa</Text>
-    <Text style={styles.countText}>{`(${trashTodos.length} ghi chú)`}</Text>
-    <View style={styles.listWrapper}>
-  <FlatList
-    data={trashTodos}
-    keyExtractor={(item) => item.id}
-    renderItem={renderItem}
-    ListEmptyComponent={
-      <Text style={styles.emptyText}>
-        Không có ghi chú nào trong thùng rác.
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.header, { color: theme.text }]}>🗑️ Ghi chú đã xóa</Text>
+      <Text style={[styles.countText, { color: theme.text }]}>
+        ({trashTodos.length} ghi chú)
       </Text>
-    }
-  />
-</View>
-  </View>
-);
-
+      <View style={styles.listWrapper}>
+        <FlatList
+          data={trashTodos}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <Text style={[styles.emptyText, { color: theme.text }]}>
+              Không có ghi chú nào trong thùng rác.
+            </Text>
+          }
+        />
+      </View>
+    </View>
+  );
 };
 
 export default TrashListScreen;
@@ -118,7 +124,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
   },
   header: {
     fontSize: 20,
@@ -129,16 +134,17 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     padding: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderWidth: 1,
+    borderRadius: 8,
     alignItems: 'center',
+    marginVertical: 6,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 16,
   },
   description: {
-    color: '#555',
+    fontSize: 14,
   },
   actions: {
     flexDirection: 'row',
@@ -148,15 +154,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   countText: {
-  textAlign: 'center',
-  marginBottom: 10,
-  fontSize: 16,
-  color: '#666',
-},
-emptyText: {
-  textAlign: 'center',
-  marginBottom: 10,
-  fontSize: 16,
-  color: '#666',
-},
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  listWrapper: {
+    flex: 1,
+  },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,10 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { ThemeContext } from '../context/ThemeContext';
 
 const ProfileScreen = () => {
+  const { theme } = useContext(ThemeContext);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +63,7 @@ const ProfileScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color="#FF6700" />
       </View>
     );
@@ -69,51 +71,49 @@ const ProfileScreen = () => {
 
   if (!userData) {
     return (
-      <View style={styles.container}>
-        <Text>No user data available.</Text>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <Text style={{ color: theme.text }}>No user data available.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <TouchableOpacity style={styles.avatarContainer} onPress={handleSelectAvatar}>
         <Image
           source={{ uri: userData.photoURL || 'https://via.placeholder.com/100' }}
           style={styles.avatar}
         />
-        <Text style={styles.changePhotoText}>Tap to change photo</Text>
+        <Text style={[styles.changePhotoText, { color: theme.text }]}>Tap to change photo</Text>
       </TouchableOpacity>
 
       {/* Name */}
       <View style={styles.infoRow}>
-        <Icon name="person-outline" size={24} color="#FF6700" />
-        <Text style={styles.infoText}>{userData.fullName || 'User'}</Text>
+        <Icon name="person-outline" size={24} color={theme.text} />
+        <Text style={[styles.infoText, { color: theme.text }]}>{userData.fullName || 'User'}</Text>
       </View>
-      <View style={styles.separator} />
+      <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
       {/* Address */}
       <View style={styles.infoRow}>
-        <Icon name="location-outline" size={24} color="#FF6700" />
-        <Text style={styles.infoText}>{userData.address || 'No address'}</Text>
+        <Icon name="location-outline" size={24} color={theme.text} />
+        <Text style={[styles.infoText, { color: theme.text }]}>{userData.address || 'No address'}</Text>
       </View>
-      <View style={styles.separator} />
+      <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
       {/* Phone */}
       <View style={styles.infoRow}>
-        <Icon name="call-outline" size={24} color="#FF6700" />
-        <Text style={styles.infoText}>{userData.phone || 'No phone'}</Text>
+        <Icon name="call-outline" size={24} color={theme.text} />
+        <Text style={[styles.infoText, { color: theme.text }]}>{userData.phone || 'No phone'}</Text>
       </View>
-      <View style={styles.separator} />
+      <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
       {/* Email */}
       <View style={styles.infoRow}>
-        <Icon name="mail-outline" size={24} color="#FF6700" />
-        <Text style={styles.infoText}>{userData.email}</Text>
+        <Icon name="mail-outline" size={24} color={theme.text} />
+        <Text style={[styles.infoText, { color: theme.text }]}>{userData.email}</Text>
       </View>
-      <View style={styles.separator} />
-
-      
+      <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
     </View>
   );
 };
@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   avatarContainer: {
     alignItems: 'center',
@@ -142,7 +141,6 @@ const styles = StyleSheet.create({
   changePhotoText: {
     marginTop: 8,
     fontSize: 14,
-    color: '#888',
   },
   infoRow: {
     flexDirection: 'row',
@@ -153,11 +151,9 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 18,
     marginLeft: 15,
-    color: '#333',
   },
   separator: {
     height: 1,
-    backgroundColor: '#ddd',
     width: '80%',
     marginBottom: 15,
   },

@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { ThemeContext } from '../context/ThemeContext';
 
 const FavoriteListScreen = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const { theme } = useContext(ThemeContext);
+  
   useEffect(() => {
     const currentUser = auth().currentUser;
     if (!currentUser) return;
@@ -18,7 +20,6 @@ const FavoriteListScreen = () => {
       .where('isFavorite', '==', true)
       .onSnapshot(
         (querySnapshot) => {
-          console.log('Snapshot docs:', querySnapshot.docs.length);
           const favs = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
@@ -37,16 +38,16 @@ const FavoriteListScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF4500" />
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.mode === 'dark' ? '#FFA07A' : '#FF4500'} />
       </View>
     );
   }
 
   if (favorites.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Không có ghi chú yêu thích nào.</Text>
+      <View style={[styles.emptyContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.emptyText, { color: theme.text }]}>Không có ghi chú yêu thích nào.</Text>
       </View>
     );
   }
@@ -54,11 +55,9 @@ const FavoriteListScreen = () => {
   const renderItem = ({ item }) => {
     const handleRemoveFavorite = async () => {
       try {
-        console.log('Đang gỡ yêu thích:', item.id);
         await firestore().collection('todos').doc(item.id).update({
           isFavorite: false,
         });
-        console.log('Đã gỡ yêu thích thành công');
       } catch (error) {
         console.error('Lỗi khi gỡ yêu thích:', error);
         alert('Lỗi khi gỡ yêu thích, thử lại!');
@@ -66,19 +65,19 @@ const FavoriteListScreen = () => {
     };
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: theme.mode === 'dark' ? '#222' : '#FFF', shadowColor: theme.mode === 'dark' ? '#FFA07A' : '#FF4500' }]}>
         <TouchableOpacity onPress={handleRemoveFavorite}>
           <Icon
             name="heart"
             size={28}
-            color="#FF4500"
+            color={theme.mode === 'dark' ? '#FFA07A' : '#FF4500'}
             style={styles.icon}
           />
         </TouchableOpacity>
         <View style={styles.textContainer}>
-          <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{item.title}</Text>
+          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1} ellipsizeMode="tail">{item.title}</Text>
           {item.description ? (
-            <Text style={styles.description} numberOfLines={2} ellipsizeMode="tail">{item.description}</Text>
+            <Text style={[styles.description, { color: theme.mode === 'dark' ? '#CCC' : '#666' }]} numberOfLines={2} ellipsizeMode="tail">{item.description}</Text>
           ) : null}
         </View>
       </View>
@@ -86,11 +85,11 @@ const FavoriteListScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FFF8F0' }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Text style={{
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#FF4500',
+        color: theme.mode === 'dark' ? '#FFA07A' : '#FF4500',
         paddingHorizontal: 16,
         paddingVertical: 12,
         textAlign: 'center',
@@ -98,7 +97,7 @@ const FavoriteListScreen = () => {
         DANH MỤC YÊU THÍCH
       </Text>
       <FlatList
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[styles.listContainer, { backgroundColor: theme.background }]}
         data={favorites}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
@@ -109,21 +108,18 @@ const FavoriteListScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF8F0' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF8F0' },
-  emptyText: { fontSize: 18, color: '#999', fontStyle: 'italic' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { fontSize: 18, fontStyle: 'italic' },
   listContainer: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#FFF8F0',
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
     padding: 16,
     marginBottom: 12,
     borderRadius: 12,
-    shadowColor: '#FF4500',
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -139,12 +135,10 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     fontSize: 18,
-    color: '#333',
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: '#666',
     lineHeight: 20,
   },
 });

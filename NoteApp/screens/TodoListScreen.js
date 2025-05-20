@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { ThemeContext } from '../context/ThemeContext';
 
 const formatDate = (timestamp) => {
   if (!timestamp) return '';
@@ -36,6 +37,8 @@ const TodoListScreen = ({ navigation }) => {
   const filteredFavoriteTodos = favoriteTodos.filter(todo => todo.title.includes(searchText));
   const user = auth().currentUser;
 
+  const { theme } = useContext(ThemeContext);
+  
   React.useEffect(() => {
   if (!user?.uid) return;
 
@@ -255,7 +258,7 @@ const TodoListScreen = ({ navigation }) => {
           style={[styles.tab, activeTab === 'favorites' && styles.activeTab]}
           onPress={() => setActiveTab('favorites')}
         >
-          <Text style={[styles.tabText, activeTab === 'favorite' && styles.activeTabText]}>
+          <Text style={[styles.tabText, activeTab === 'favorites' && styles.activeTabText]}>
             YÊU THÍCH{' '}
             <Text style={styles.countText}>
               ({filteredFavoriteTodos.length})

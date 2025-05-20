@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomTextInput from '../components/CustomTextInput';
+import { ThemeContext } from '../context/ThemeContext';
 
-// Validation schema bổ sung confirmNewPassword
 const validationSchema = Yup.object().shape({
   currentPassword: Yup.string().required('Current password is required'),
   newPassword: Yup.string().min(6, 'At least 6 characters').required('New password is required'),
@@ -27,6 +27,8 @@ const ResetPasswordScreen = ({ navigation }) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { theme } = useContext(ThemeContext);
 
   const toggleCurrentPassword = () => setShowCurrentPassword(!showCurrentPassword);
   const toggleNewPassword = () => setShowNewPassword(!showNewPassword);
@@ -43,29 +45,27 @@ const ResetPasswordScreen = ({ navigation }) => {
     try {
       await reauthenticate(values.currentPassword);
       await auth().currentUser.updatePassword(values.newPassword);
-      Alert.alert(
-        'Success ✅',
-        'Password updated successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(),
-          },
-        ],
-        { cancelable: false }
-      );
+      Alert.alert('Success ✅', 'Password updated successfully!', [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
       console.error('Password Update Error:', error);
       Alert.alert('Error ❌', error.message);
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.title}>Change Password 🔐</Text>
+      <Text style={[styles.title, { color: theme.text }]}>Change Password 🔐</Text>
 
       <Formik
         initialValues={{ currentPassword: '', newPassword: '', confirmNewPassword: '' }}
@@ -74,7 +74,7 @@ const ResetPasswordScreen = ({ navigation }) => {
       >
         {({ handleChange, handleBlur, handleSubmit, values, touched, errors, isSubmitting }) => (
           <>
-            <Text style={styles.label}>Current Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Current Password:</Text>
             <CustomTextInput
               value={values.currentPassword}
               onChangeText={handleChange('currentPassword')}
@@ -88,7 +88,7 @@ const ResetPasswordScreen = ({ navigation }) => {
               <Text style={styles.errorText}>{errors.currentPassword}</Text>
             )}
 
-            <Text style={styles.label}>New Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>New Password:</Text>
             <CustomTextInput
               value={values.newPassword}
               onChangeText={handleChange('newPassword')}
@@ -102,7 +102,7 @@ const ResetPasswordScreen = ({ navigation }) => {
               <Text style={styles.errorText}>{errors.newPassword}</Text>
             )}
 
-            <Text style={styles.label}>Confirm New Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Confirm New Password:</Text>
             <CustomTextInput
               value={values.confirmNewPassword}
               onChangeText={handleChange('confirmNewPassword')}
@@ -117,7 +117,7 @@ const ResetPasswordScreen = ({ navigation }) => {
             )}
 
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, { backgroundColor: '#FF6700' }]}
               onPress={handleSubmit}
               disabled={isSubmitting || loading}
             >
@@ -129,7 +129,7 @@ const ResetPasswordScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.link}>
-              <Text style={styles.linkText}>Back🔙</Text>
+              <Text style={[styles.linkText, { color: '#FF6700' }]}>Back 🔙</Text>
             </TouchableOpacity>
           </>
         )}
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     justifyContent: 'center',
-    backgroundColor: '#f9fafd',
     flexGrow: 1,
   },
   title: {
@@ -150,7 +149,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
   },
   label: {
     fontSize: 16,
@@ -165,7 +163,6 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   button: {
-    backgroundColor: '#4e9bde',
     paddingVertical: 14,
     borderRadius: 10,
     marginTop: 20,
@@ -181,7 +178,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   linkText: {
-    color: '#4e9bde',
     fontSize: 14,
   },
 });

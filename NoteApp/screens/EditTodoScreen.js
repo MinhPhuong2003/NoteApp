@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { ThemeContext } from '../context/ThemeContext';
 
 const EditTodoScreen = () => {
   const route = useRoute();
@@ -10,6 +11,8 @@ const EditTodoScreen = () => {
 
   const [title, setTitle] = useState(todo.title);
   const [description, setDescription] = useState(todo.description || '');
+
+  const { theme } = useContext(ThemeContext);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -31,51 +34,82 @@ const EditTodoScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>
+    <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
+      <Text
+        style={{
+          fontSize: 22,
+          fontWeight: 'bold',
+          marginBottom: 20,
+          textAlign: 'center',
+          color: theme.text,
+        }}
+      >
         ✏️ CHỈNH SỬA TODO
       </Text>
 
       <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 6 }}>🖊️ Tiêu đề:</Text>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: '600',
+            marginBottom: 6,
+            color: theme.text,
+          }}
+        >
+          🖊️ Tiêu đề:
+        </Text>
         <TextInput
           placeholder="Nhập tiêu đề ghi chú..."
+          placeholderTextColor={theme.text}
           value={title}
           onChangeText={setTitle}
           style={{
             borderWidth: 1,
-            borderColor: '#ccc',
+            borderColor: theme.text,
             borderRadius: 8,
             padding: 10,
             fontSize: 16,
+            color: theme.text,
+            backgroundColor: theme.inputBackground,
           }}
         />
       </View>
 
       <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 6 }}>📌 Mô tả:</Text>
-        <TextInput
-          placeholder="Nhập mô tả chi tiết..."
-          value={description}
-          onChangeText={setDescription}
-          multiline
+        <Text
           style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 10,
             fontSize: 16,
-            minHeight: 80,
-            textAlignVertical: 'top',
+            fontWeight: '600',
+            marginBottom: 6,
+            color: theme.text,
           }}
-        />
+        >
+          📌 Mô tả:
+        </Text>
+        <TextInput
+                  placeholder="Nhập mô tả..."
+                  placeholderTextColor={theme.text}
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  style={{
+                    borderWidth: 1,
+                    borderColor: theme.text,
+                    borderRadius: 6,
+                    padding: 10,
+                    minHeight: 60,
+                    textAlignVertical: 'top',
+                    color: theme.text,
+                    backgroundColor: theme.inputBackground,
+                  }}
+                />
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableOpacity
           onPress={handleSave}
           style={{
-            backgroundColor: '#007AFF',
+            backgroundColor: theme.buttonBackground,
             padding: 12,
             borderRadius: 8,
             flex: 1,
@@ -83,13 +117,13 @@ const EditTodoScreen = () => {
             marginRight: 10,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>💾 Lưu</Text>
+          <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600' }}>💾 Lưu</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
-            backgroundColor: '#888',
+            backgroundColor: theme.buttonSecondaryBackground,
             padding: 12,
             borderRadius: 8,
             flex: 1,
@@ -97,7 +131,7 @@ const EditTodoScreen = () => {
             marginLeft: 10,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>↩️ Quay lại</Text>
+          <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600' }}>↩️ Quay lại</Text>
         </TouchableOpacity>
       </View>
     </View>

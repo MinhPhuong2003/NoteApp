@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,9 +12,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
+import { ThemeContext } from '../context/ThemeContext';
 
 const MenuScreen = ({ closeMenu }) => {
   const navigation = useNavigation();
+  const { theme } = useContext(ThemeContext);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,73 +66,77 @@ const MenuScreen = ({ closeMenu }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color="#FF6700" />
       </View>
     );
   }
 
+  const borderColor = theme.mode === 'dark' ? '#FFFFFF' : theme.text + '33';
+
   return (
-  <View style={styles.container}>
-    <View style={styles.profile}>
-      <Image
-        source={{ uri: userData?.photoURL || 'https://via.placeholder.com/90' }}
-        style={styles.avatar}
-      />
-      <Text style={styles.name}>{userData?.fullName || 'User'}</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.profile}>
+        <Image
+          source={{ uri: userData?.photoURL || 'https://via.placeholder.com/90' }}
+          style={styles.avatar}
+        />
+        <Text style={[styles.name, { color: theme.text }]}>{userData?.fullName || 'User'}</Text>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.menuRow, { borderBottomColor: borderColor }]}
+        onPress={() => {
+          navigation.navigate('TodoList', { screen: 'TodoList' });
+          closeMenu();
+        }}
+      >
+        <Icon name="document-text-outline" size={22} color="#FF6700" />
+        <Text style={[styles.menuItem, { color: theme.text }]}>Notes</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.menuRow, { borderBottomColor: borderColor }]}
+        onPress={() => {
+          navigation.navigate('Favorites');
+          closeMenu();
+        }}
+      >
+        <Icon name="heart-outline" size={22} color="#FF6700" />
+        <Text style={[styles.menuItem, { color: theme.text }]}>Favorites</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.menuRow, { borderBottomColor: borderColor }]}
+        onPress={() => {
+          navigation.navigate('TodoList', { screen: 'Profile' });
+          closeMenu();
+        }}
+      >
+        <Icon name="person-outline" size={22} color="#FF6700" />
+        <Text style={[styles.menuItem, { color: theme.text }]}>My Profile</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.menuRow, { borderBottomColor: borderColor }]}
+        onPress={() => {
+          navigation.navigate('Trash');
+          closeMenu();
+        }}
+      >
+        <Icon name="trash-outline" size={22} color="#FF6700" />
+        <Text style={[styles.menuItem, { color: theme.text }]}>Trash</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.menuRow, { borderBottomColor: borderColor }]}
+        onPress={handleLogout}
+      >
+        <Icon name="log-out-outline" size={22} color="#FF6700" />
+        <Text style={[styles.menuItem, { color: theme.text }]}>Logout</Text>
+      </TouchableOpacity>
     </View>
-
-    <TouchableOpacity
-      style={styles.menuRow}
-      onPress={() => {
-        navigation.navigate('TodoList', { screen: 'TodoList' });
-        closeMenu();
-      }}
-    >
-      <Icon name="document-text-outline" size={22} color="#FF6700" />
-      <Text style={styles.menuItem}>Notes</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={styles.menuRow}
-      onPress={() => {
-        navigation.navigate('Favorites');
-        closeMenu();
-      }}
-    >
-      <Icon name="heart-outline" size={22} color="#FF6700" />
-      <Text style={styles.menuItem}>Favorites</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={styles.menuRow}
-      onPress={() => {
-        navigation.navigate('TodoList', { screen: 'Profile' });
-        closeMenu();
-      }}
-    >
-      <Icon name="person-outline" size={22} color="#FF6700" />
-      <Text style={styles.menuItem}>My Profile</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={styles.menuRow}
-      onPress={() => {
-        navigation.navigate('Trash');
-        closeMenu();
-      }}
-    >
-      <Icon name="trash-outline" size={22} color="#FF6700" />
-      <Text style={styles.menuItem}>Trash</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity style={styles.menuRow} onPress={handleLogout}>
-      <Icon name="log-out-outline" size={22} color="#FF6700" />
-      <Text style={styles.menuItem}>Logout</Text>
-    </TouchableOpacity>
-  </View>
-);
-
+  );
 };
 
 export default MenuScreen;
