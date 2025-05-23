@@ -105,7 +105,7 @@ const MenuScreen = ({ closeMenu }) => {
         <Icon name="heart-outline" size={22} color="#FF6700" />
         <Text style={[styles.menuItem, { color: theme.text }]}>Favorites</Text>
       </TouchableOpacity>
-
+            
       <TouchableOpacity
         style={[styles.menuRow, { borderBottomColor: borderColor }]}
         onPress={() => {

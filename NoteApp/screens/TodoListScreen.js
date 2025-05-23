@@ -26,7 +26,7 @@ const formatDate = (timestamp) => {
   return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 };
 
-const TodoListScreen = ({ navigation }) => {
+const TodoListScreen = ({ navigation}) => {
   const [todos, setTodos] = React.useState([]);
   const [searchText, setSearchText] = React.useState('');
   const [activeTab, setActiveTab] = React.useState('all');
@@ -260,10 +260,10 @@ const TodoListScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'category' && styles.activeTab]}
-          onPress={() => setActiveTab('category')}
+          style={[styles.tab, activeTab === 'Categories' && styles.activeTab]}
+          onPress={() => setActiveTab('Categories')}
         >
-          <Text style={[styles.tabText, activeTab === 'category' && styles.activeTabText, { color: theme.text }]}>
+          <Text style={[styles.tabText, activeTab === 'Categories' && styles.activeTabText, { color: theme.text }]}>
             DANH MỤC{' '}
           </Text>
         </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,13 @@ import auth from '@react-native-firebase/auth';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../context/ThemeContext';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const { theme } = useContext(ThemeContext);
+  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const fetchUserData = async () => {
     try {
       const currentUser = auth().currentUser;
@@ -45,18 +46,21 @@ const ProfileScreen = () => {
     fetchUserData();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
+
   const handleSelectAvatar = async () => {
     const result = await launchImageLibrary({ mediaType: 'photo' });
-
     if (!result.didCancel && !result.errorCode && result.assets?.length > 0) {
       const selectedImageUri = result.assets[0].uri;
       const currentUser = auth().currentUser;
-
       await firestore()
         .collection('USERS')
         .doc(currentUser.uid)
         .update({ photoURL: selectedImageUri });
-
       setUserData({ ...userData, photoURL: selectedImageUri });
     }
   };
@@ -87,33 +91,43 @@ const ProfileScreen = () => {
         <Text style={[styles.changePhotoText, { color: theme.text }]}>Tap to change photo</Text>
       </TouchableOpacity>
 
-      {/* Name */}
       <View style={styles.infoRow}>
         <Icon name="person-outline" size={24} color={theme.text} />
         <Text style={[styles.infoText, { color: theme.text }]}>{userData.fullName || 'User'}</Text>
       </View>
       <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
-      {/* Address */}
       <View style={styles.infoRow}>
         <Icon name="location-outline" size={24} color={theme.text} />
         <Text style={[styles.infoText, { color: theme.text }]}>{userData.address || 'No address'}</Text>
       </View>
       <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
-      {/* Phone */}
       <View style={styles.infoRow}>
         <Icon name="call-outline" size={24} color={theme.text} />
         <Text style={[styles.infoText, { color: theme.text }]}>{userData.phone || 'No phone'}</Text>
       </View>
       <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
 
-      {/* Email */}
       <View style={styles.infoRow}>
         <Icon name="mail-outline" size={24} color={theme.text} />
         <Text style={[styles.infoText, { color: theme.text }]}>{userData.email}</Text>
       </View>
       <View style={[styles.separator, { backgroundColor: theme.text + '33' }]} />
+
+      <TouchableOpacity
+        style={[
+          styles.editButton,
+          {
+            backgroundColor: theme.buttonBackground || '#FF6700',
+            shadowColor: theme.text,
+          },
+        ]}
+        onPress={() => navigation.navigate('EditProfile', { userData })}
+      >
+        <Icon name="create-outline" size={20} color="#fff" style={{ marginRight: 8 }} />
+        <Text style={styles.editButtonText}>Sửa Thông Tin</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -156,6 +170,25 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
     marginBottom: 15,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    backgroundColor: '#FF6700',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  editButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

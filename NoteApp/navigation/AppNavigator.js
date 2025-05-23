@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthContext } from '../context/AuthContext';
-import { ThemeContext } from '../context/ThemeContext'; // ✅ Thêm dòng này
-
+import { ThemeContext } from '../context/ThemeContext';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
@@ -14,12 +13,13 @@ import MenuScreen from '../screens/MenuScreen';
 import TrashListScreen from '../screens/TrashListScreen';
 import FavoriteListScreen from '../screens/FavoriteListScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const { user, loading } = useContext(AuthContext);
-  const { theme } = useContext(ThemeContext); // ✅ Lấy theme từ context
+  const { theme } = useContext(ThemeContext);
 
   if (loading) return null;
 
@@ -51,6 +51,7 @@ const AppNavigator = () => {
       <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'Add Todo' }} />
       <Stack.Screen name="Trash" component={TrashListScreen} options={{ headerTitle: 'Trash' }} />
       <Stack.Screen name="Favorites" component={FavoriteListScreen} options={{ headerTitle: 'Favorites' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerTitle: 'EditProfile' }} />
     </Stack.Navigator>
   );
 };
