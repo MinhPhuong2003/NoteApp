@@ -16,6 +16,7 @@ const TrashListScreen = () => {
   const [trashTodos, setTrashTodos] = useState([]);
   const user = auth().currentUser;
   const { theme } = useContext(ThemeContext);
+
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -58,6 +59,38 @@ const TrashListScreen = () => {
       console.error('❌ Lỗi khi xóa vĩnh viễn:', error);
       Alert.alert('Lỗi', 'Không thể xóa ghi chú vĩnh viễn.');
     }
+  };
+
+  const deleteAllTrash = () => {
+    if (trashTodos.length === 0) {
+      Alert.alert('Thông báo', 'Không có ghi chú nào để xóa.');
+      return;
+    }
+    Alert.alert(
+      'Xác nhận',
+      'Bạn có chắc chắn muốn xóa tất cả ghi chú trong thùng rác vĩnh viễn?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Xóa tất cả',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const batch = firestore().batch();
+              trashTodos.forEach((todo) => {
+                const docRef = firestore().collection('todos').doc(todo.id);
+                batch.delete(docRef);
+              });
+              await batch.commit();
+              Alert.alert('Thành công', 'Đã xóa tất cả ghi chú trong thùng rác.');
+            } catch (error) {
+              console.error('❌ Lỗi khi xóa tất cả:', error);
+              Alert.alert('Lỗi', 'Không thể xóa tất cả ghi chú.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderItem = ({ item }) => (
@@ -114,6 +147,16 @@ const TrashListScreen = () => {
           }
         />
       </View>
+      <View style={styles.deleteAllWrapper}>
+        <TouchableOpacity
+          style={[styles.deleteAllButton, { backgroundColor: 'red' }]}
+          onPress={deleteAllTrash}
+          activeOpacity={0.7}
+        >
+          <Icon name="trash" size={18} color="#fff" />
+          <Text style={styles.deleteAllText}>Xóa tất cả</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -165,5 +208,26 @@ const styles = StyleSheet.create({
   },
   listWrapper: {
     flex: 1,
+  },
+  deleteAllWrapper: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  deleteAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    width: '90%',
+    maxWidth: 400,
+  },
+
+  deleteAllText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: 'bold',
   },
 });

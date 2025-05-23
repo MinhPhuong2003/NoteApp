@@ -88,7 +88,7 @@ const ProfileScreen = () => {
           source={{ uri: userData.photoURL || 'https://via.placeholder.com/100' }}
           style={styles.avatar}
         />
-        <Text style={[styles.changePhotoText, { color: theme.text }]}>Tap to change photo</Text>
+        <Text style={[styles.changePhotoText, { color: theme.text }]}>📷Nhấn để chọn ảnh</Text>
       </TouchableOpacity>
 
       <View style={styles.infoRow}>

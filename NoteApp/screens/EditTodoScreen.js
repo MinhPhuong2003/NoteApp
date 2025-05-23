@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ThemeContext } from '../context/ThemeContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const EditTodoScreen = () => {
   const route = useRoute();
@@ -35,29 +36,18 @@ const EditTodoScreen = () => {
 
   return (
     <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: 'bold',
-          marginBottom: 20,
-          textAlign: 'center',
-          color: theme.text,
-        }}
-      >
-        ✏️ CHỈNH SỬA TODO
-      </Text>
+      {/* Tiêu đề màn hình */}
+      <View style={styles.headerContainer}>
+        <Icon name="create-outline" size={22} color={theme.text} style={{ marginRight: 8 }} />
+        <Text style={[styles.headerText, { color: theme.text }]}>SỬA GHI CHÚ</Text>
+      </View>
 
+      {/* Tiêu đề ghi chú */}
       <View style={{ marginBottom: 16 }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: '600',
-            marginBottom: 6,
-            color: theme.text,
-          }}
-        >
-          🖊️ Tiêu đề:
-        </Text>
+        <View style={styles.labelContainer}>
+          <Icon name="pencil-outline" size={18} color={theme.text} style={{ marginRight: 6 }} />
+          <Text style={[styles.labelText, { color: theme.text }]}>Tiêu đề:</Text>
+        </View>
         <TextInput
           placeholder="Nhập tiêu đề ghi chú..."
           placeholderTextColor={theme.text}
@@ -75,67 +65,88 @@ const EditTodoScreen = () => {
         />
       </View>
 
+      {/* Mô tả ghi chú */}
       <View style={{ marginBottom: 16 }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: '600',
-            marginBottom: 6,
-            color: theme.text,
-          }}
-        >
-          📌 Mô tả:
-        </Text>
+        <View style={styles.labelContainer}>
+          <Icon name="information-circle-outline" size={18} color={theme.text} style={{ marginRight: 6 }} />
+          <Text style={[styles.labelText, { color: theme.text }]}>Mô tả:</Text>
+        </View>
         <TextInput
-                  placeholder="Nhập mô tả..."
-                  placeholderTextColor={theme.text}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  style={{
-                    borderWidth: 1,
-                    borderColor: theme.text,
-                    borderRadius: 6,
-                    padding: 10,
-                    minHeight: 60,
-                    textAlignVertical: 'top',
-                    color: theme.text,
-                    backgroundColor: theme.inputBackground,
-                  }}
-                />
+          placeholder="Nhập mô tả..."
+          placeholderTextColor={theme.text}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          style={{
+            borderWidth: 1,
+            borderColor: theme.text,
+            borderRadius: 6,
+            padding: 10,
+            minHeight: 60,
+            textAlignVertical: 'top',
+            color: theme.text,
+            backgroundColor: theme.inputBackground,
+          }}
+        />
       </View>
 
+      {/* Nút lưu */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableOpacity
           onPress={handleSave}
-          style={{
-            backgroundColor: theme.buttonBackground,
-            padding: 12,
-            borderRadius: 8,
-            flex: 1,
-            alignItems: 'center',
-            marginRight: 10,
-          }}
+          style={[
+            styles.saveButtonSmall,
+            { backgroundColor: theme.buttonBackground || '#FF6700', shadowColor: theme.text },
+          ]}
         >
-          <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600' }}>💾 Lưu</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            backgroundColor: theme.buttonSecondaryBackground,
-            padding: 12,
-            borderRadius: 8,
-            flex: 1,
-            alignItems: 'center',
-            marginLeft: 10,
-          }}
-        >
-          <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600' }}>↩️ Quay lại</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="save-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.saveButtonTextSmall}>Lưu</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  labelText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButtonSmall: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 3,
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  saveButtonTextSmall: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+});
 
 export default EditTodoScreen;

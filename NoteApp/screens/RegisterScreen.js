@@ -7,141 +7,170 @@ import auth from '@react-native-firebase/auth';
 import CustomTextInput from '../components/CustomTextInput';
 import useTogglePassword from '../hooks/useTogglePassword';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const RegisterScreen = ({ navigation }) => {
   const { showPassword, togglePassword } = useTogglePassword();
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (values) => {
-  const { email, password, fullName, phone, address } = values;
-  
-  setLoading(true);
+    const { email, password, fullName, phone, address } = values;
+    setLoading(true);
 
-  try {
-    // Tạo tài khoản trên Firebase Auth
-    const userCredential = await auth().createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    // Cập nhật displayName trong Firebase Auth
-    await user.updateProfile({
-      displayName: fullName,
-    });
-    await firestore().collection('USERS').doc(user.uid).set({
-      email,
-      fullName,
-      phone,
-      address,
-      role: 'customer',
-    });
-    setLoading(false);
-    Alert.alert(
-      'Success 🎉',
-      'Registration successful. Please log in.',
-      [
-        {
-          text: 'OK 👍',
-          onPress: () => {
-            navigation.navigate('Login');
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      await user.updateProfile({
+        displayName: fullName,
+      });
+
+      await firestore().collection('USERS').doc(user.uid).set({
+        email,
+        fullName,
+        phone,
+        address,
+        role: 'customer',
+      });
+
+      setLoading(false);
+      Alert.alert(
+        'Thành công',
+        'Đăng ký thành công. Vui lòng đăng nhập.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login'),
           },
-        },
-      ]
-    );
-  } catch (error) {
-    setLoading(false);
-    console.error('Registration Error:', error);
-    Alert.alert('Error ❌', error.message);
-  }
-};
+        ]
+      );
+    } catch (error) {
+      setLoading(false);
+      console.error('Lỗi đăng ký:', error);
+      Alert.alert('Lỗi', error.message);
+    }
+  };
 
   return (
-  <KeyboardAwareScrollView
-    contentContainerStyle={styles.container}
-    keyboardShouldPersistTaps="handled"
-  >
-    <Text style={styles.title}>Create Account ✍️</Text>
-
-    <Formik
-      initialValues={{ email: '', password: '', fullName: '', phone: '', address: '' }}
-      validationSchema={Yup.object({
-        fullName: Yup.string().required('Full name is required 💼'),
-        email: Yup.string().email('Invalid email 📧').required('Email is required 📝'),
-        phone: Yup.string().required('Phone number is required 📱'),
-        address: Yup.string().required('Address is required 🏠'),
-        password: Yup.string().min(6, 'Password must be at least 6 characters 🔑').required('Password is required 🔒'),
-      })}
-      onSubmit={handleRegister}
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
     >
-      {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
-        <>
-          <CustomTextInput
-            value={values.fullName}
-            onChangeText={handleChange('fullName')}
-            onBlur={handleBlur('fullName')}
-            placeholder="Full Name 👤"
-            error={touched.fullName && errors.fullName}
-          />
-          {touched.fullName && errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+      <Text style={styles.title}>ĐĂNG KÝ</Text>
 
-          <CustomTextInput
-            value={values.email}
-            onChangeText={handleChange('email')}
-            onBlur={handleBlur('email')}
-            placeholder="Email 📧"
-            keyboardType="email-address"
-            error={touched.email && errors.email}
-          />
-          {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      <Formik
+        initialValues={{ email: '', password: '', fullName: '', phone: '', address: '' }}
+        validationSchema={Yup.object({
+          fullName: Yup.string().required('Họ tên không được bỏ trống'),
+          email: Yup.string().email('Email không hợp lệ').required('Vui lòng nhập email'),
+          phone: Yup.string().required('Vui lòng nhập số điện thoại'),
+          address: Yup.string().required('Vui lòng nhập địa chỉ'),
+          password: Yup.string().min(6, 'Mật khẩu ít nhất 6 ký tự').required('Vui lòng nhập mật khẩu'),
+        })}
+        onSubmit={handleRegister}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
+          <>
+            <View style={styles.inputContainer}>
+              <View style={styles.labelContainer}>
+                <Icon name="account" size={16} color="#333" />
+                <Text style={styles.label}>Họ tên</Text>
+              </View>
+              <CustomTextInput
+                value={values.fullName}
+                onChangeText={handleChange('fullName')}
+                onBlur={handleBlur('fullName')}
+                placeholder="Nhập họ tên"
+                icon={<Icon name="account" size={20} color="#666" />}
+                error={touched.fullName && errors.fullName}
+              />
+              {touched.fullName && errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={styles.labelContainer}>
+                <Icon name="email" size={16} color="#333" />
+                <Text style={styles.label}>Email</Text>
+              </View>
+              <CustomTextInput
+                value={values.email}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                placeholder="Nhập email"
+                keyboardType="email-address"
+                icon={<Icon name="email" size={20} color="#666" />}
+                error={touched.email && errors.email}
+              />
+              {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={styles.labelContainer}>
+                <Icon name="phone" size={16} color="#333" />
+                <Text style={styles.label}>Số điện thoại</Text>
+              </View>
+              <CustomTextInput
+                value={values.phone}
+                onChangeText={handleChange('phone')}
+                onBlur={handleBlur('phone')}
+                placeholder="Nhập số điện thoại"
+                keyboardType="phone-pad"
+                icon={<Icon name="phone" size={20} color="#666" />}
+                error={touched.phone && errors.phone}
+              />
+              {touched.phone && errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={styles.labelContainer}>
+                <Icon name="home" size={16} color="#333" />
+                <Text style={styles.label}>Địa chỉ</Text>
+              </View>
+              <CustomTextInput
+                value={values.address}
+                onChangeText={handleChange('address')}
+                onBlur={handleBlur('address')}
+                placeholder="Nhập địa chỉ"
+                icon={<Icon name="home" size={20} color="#666" />}
+                error={touched.address && errors.address}
+              />
+              {touched.address && errors.address && <Text style={styles.errorText}>{errors.address}</Text>}
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={styles.labelContainer}>
+                <Icon name="lock" size={16} color="#333" />
+                <Text style={styles.label}>Mật khẩu</Text>
+              </View>
+              <CustomTextInput
+                value={values.password}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                placeholder="Nhập mật khẩu"
+                secureTextEntry={!showPassword}
+                togglePassword={togglePassword}
+                showPassword={showPassword}
+                icon={<Icon name="lock" size={20} color="#666" />}
+                error={touched.password && errors.password}
+              />
+              {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            </View>
 
-          <CustomTextInput
-            value={values.phone}
-            onChangeText={handleChange('phone')}
-            onBlur={handleBlur('phone')}
-            placeholder="Phone Number 📱"
-            keyboardType="phone-pad"
-            error={touched.phone && errors.phone}
-          />
-          {touched.phone && errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-
-          <CustomTextInput
-            value={values.address}
-            onChangeText={handleChange('address')}
-            onBlur={handleBlur('address')}
-            placeholder="Address 🏠"
-            error={touched.address && errors.address}
-          />
-          {touched.address && errors.address && <Text style={styles.errorText}>{errors.address}</Text>}
-
-          <CustomTextInput
-            value={values.password}
-            onChangeText={handleChange('password')}
-            onBlur={handleBlur('password')}
-            placeholder="Password 🔒"
-            secureTextEntry={!showPassword}
-            togglePassword={togglePassword}
-            showPassword={showPassword}
-            error={touched.password && errors.password}
-          />
-          {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Register ✨</Text>
-            )}
-          </TouchableOpacity>
-        </>
-      )}
-    </Formik>
-
-    <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
-      <Text style={styles.linkText}>Back to Login 🔙</Text>
-    </TouchableOpacity>
-  </KeyboardAwareScrollView>
-);
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <View style={styles.buttonContent}>
+                  <Icon name="account-check" size={20} color="#fff" style={{ marginRight: 8 }} />
+                  <Text style={styles.buttonText}>Đăng ký</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </>
+        )}
+      </Formik>
+    </KeyboardAwareScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -159,11 +188,25 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 30,
   },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 1,
+  },
+  label: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  inputContainer: {
+    marginBottom: 5,
+  },
   button: {
     backgroundColor: '#4e9bde',
     paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 10,
   },
   buttonText: {
@@ -172,18 +215,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  link: {
-    marginTop: 10,
-    alignSelf: 'center',
-  },
-  linkText: {
-    color: '#4e9bde',
-    fontSize: 14,
-  },
   errorText: {
     color: 'red',
     fontSize: 12,
     marginTop: 5,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

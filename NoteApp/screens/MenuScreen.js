@@ -37,7 +37,7 @@ const MenuScreen = ({ closeMenu }) => {
         setUserData(snapshot.data());
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Lỗi khi lấy dữ liệu người dùng:', error);
     } finally {
       setLoading(false);
     }
@@ -48,10 +48,10 @@ const MenuScreen = ({ closeMenu }) => {
   }, []);
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn đăng xuất?', [
+      { text: 'Hủy', style: 'cancel' },
       {
-        text: 'Logout',
+        text: 'Đăng xuất',
         onPress: async () => {
           await auth().signOut();
           closeMenu();
@@ -81,7 +81,7 @@ const MenuScreen = ({ closeMenu }) => {
           source={{ uri: userData?.photoURL || 'https://via.placeholder.com/90' }}
           style={styles.avatar}
         />
-        <Text style={[styles.name, { color: theme.text }]}>{userData?.fullName || 'User'}</Text>
+        <Text style={[styles.name, { color: theme.text }]}>{userData?.fullName || 'Người dùng'}</Text>
       </View>
 
       <TouchableOpacity
@@ -92,7 +92,7 @@ const MenuScreen = ({ closeMenu }) => {
         }}
       >
         <Icon name="document-text-outline" size={22} color="#FF6700" />
-        <Text style={[styles.menuItem, { color: theme.text }]}>Notes</Text>
+        <Text style={[styles.menuItem, { color: theme.text }]}>Tất cả ghi chú</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -103,9 +103,9 @@ const MenuScreen = ({ closeMenu }) => {
         }}
       >
         <Icon name="heart-outline" size={22} color="#FF6700" />
-        <Text style={[styles.menuItem, { color: theme.text }]}>Favorites</Text>
+        <Text style={[styles.menuItem, { color: theme.text }]}>Yêu thích</Text>
       </TouchableOpacity>
-            
+
       <TouchableOpacity
         style={[styles.menuRow, { borderBottomColor: borderColor }]}
         onPress={() => {
@@ -114,7 +114,7 @@ const MenuScreen = ({ closeMenu }) => {
         }}
       >
         <Icon name="person-outline" size={22} color="#FF6700" />
-        <Text style={[styles.menuItem, { color: theme.text }]}>My Profile</Text>
+        <Text style={[styles.menuItem, { color: theme.text }]}>Hồ sơ của tôi</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -125,7 +125,7 @@ const MenuScreen = ({ closeMenu }) => {
         }}
       >
         <Icon name="trash-outline" size={22} color="#FF6700" />
-        <Text style={[styles.menuItem, { color: theme.text }]}>Trash</Text>
+        <Text style={[styles.menuItem, { color: theme.text }]}>Thùng rác</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -133,7 +133,7 @@ const MenuScreen = ({ closeMenu }) => {
         onPress={handleLogout}
       >
         <Icon name="log-out-outline" size={22} color="#FF6700" />
-        <Text style={[styles.menuItem, { color: theme.text }]}>Logout</Text>
+        <Text style={[styles.menuItem, { color: theme.text }]}>Đăng xuất</Text>
       </TouchableOpacity>
     </View>
   );

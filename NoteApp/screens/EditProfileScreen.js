@@ -107,11 +107,17 @@ const EditProfileScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={[
           styles.saveButton,
-          { backgroundColor: theme.buttonBackground || '#FF6700', shadowColor: theme.text },
+          {
+            backgroundColor: theme.buttonBackground || '#FF6700',
+            shadowColor: theme.text,
+          },
         ]}
         onPress={handleSave}
       >
-        <Text style={styles.saveButtonText}>💾 Lưu Thông Tin</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Icon name="save-outline" size={20} color="white" style={{ marginRight: 8 }} />
+          <Text style={styles.saveButtonText}>Lưu Thông Tin</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );

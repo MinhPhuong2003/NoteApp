@@ -13,13 +13,14 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomTextInput from '../components/CustomTextInput';
 import { ThemeContext } from '../context/ThemeContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const validationSchema = Yup.object().shape({
-  currentPassword: Yup.string().required('Current password is required'),
-  newPassword: Yup.string().min(6, 'At least 6 characters').required('New password is required'),
+  currentPassword: Yup.string().required('Vui lòng nhập mật khẩu hiện tại'),
+  newPassword: Yup.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').required('Vui lòng nhập mật khẩu mới'),
   confirmNewPassword: Yup.string()
-    .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
-    .required('Please confirm your new password'),
+    .oneOf([Yup.ref('newPassword'), null], 'Mật khẩu xác nhận không khớp')
+    .required('Vui lòng xác nhận mật khẩu mới'),
 });
 
 const ResetPasswordScreen = ({ navigation }) => {
@@ -45,15 +46,15 @@ const ResetPasswordScreen = ({ navigation }) => {
     try {
       await reauthenticate(values.currentPassword);
       await auth().currentUser.updatePassword(values.newPassword);
-      Alert.alert('Success ✅', 'Password updated successfully!', [
+      Alert.alert('Thành công ✅', 'Mật khẩu đã được cập nhật!', [
         {
           text: 'OK',
           onPress: () => navigation.goBack(),
         },
       ]);
     } catch (error) {
-      console.error('Password Update Error:', error);
-      Alert.alert('Error ❌', error.message);
+      console.error('Lỗi cập nhật mật khẩu:', error);
+      Alert.alert('Lỗi ❌', error.message);
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -65,7 +66,7 @@ const ResetPasswordScreen = ({ navigation }) => {
       contentContainerStyle={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={[styles.title, { color: theme.text }]}>Change Password 🔐</Text>
+      <Text style={[styles.title, { color: theme.text }]}>Đổi Mật Khẩu 🔐</Text>
 
       <Formik
         initialValues={{ currentPassword: '', newPassword: '', confirmNewPassword: '' }}
@@ -74,12 +75,12 @@ const ResetPasswordScreen = ({ navigation }) => {
       >
         {({ handleChange, handleBlur, handleSubmit, values, touched, errors, isSubmitting }) => (
           <>
-            <Text style={[styles.label, { color: theme.text }]}>Current Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Mật khẩu hiện tại:</Text>
             <CustomTextInput
               value={values.currentPassword}
               onChangeText={handleChange('currentPassword')}
               onBlur={handleBlur('currentPassword')}
-              placeholder="Current Password"
+              placeholder="Nhập mật khẩu hiện tại"
               secureTextEntry={!showCurrentPassword}
               togglePassword={toggleCurrentPassword}
               showPassword={showCurrentPassword}
@@ -88,12 +89,12 @@ const ResetPasswordScreen = ({ navigation }) => {
               <Text style={styles.errorText}>{errors.currentPassword}</Text>
             )}
 
-            <Text style={[styles.label, { color: theme.text }]}>New Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Mật khẩu mới:</Text>
             <CustomTextInput
               value={values.newPassword}
               onChangeText={handleChange('newPassword')}
               onBlur={handleBlur('newPassword')}
-              placeholder="New Password"
+              placeholder="Nhập mật khẩu mới"
               secureTextEntry={!showNewPassword}
               togglePassword={toggleNewPassword}
               showPassword={showNewPassword}
@@ -102,12 +103,12 @@ const ResetPasswordScreen = ({ navigation }) => {
               <Text style={styles.errorText}>{errors.newPassword}</Text>
             )}
 
-            <Text style={[styles.label, { color: theme.text }]}>Confirm New Password:</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Xác nhận mật khẩu mới:</Text>
             <CustomTextInput
               value={values.confirmNewPassword}
               onChangeText={handleChange('confirmNewPassword')}
               onBlur={handleBlur('confirmNewPassword')}
-              placeholder="Confirm New Password"
+              placeholder="Xác nhận mật khẩu mới"
               secureTextEntry={!showConfirmPassword}
               togglePassword={toggleConfirmPassword}
               showPassword={showConfirmPassword}
@@ -124,12 +125,11 @@ const ResetPasswordScreen = ({ navigation }) => {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Update Password 🔄</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="save-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
+                  <Text style={styles.buttonText}>Lưu Thay Đổi</Text>
+                </View>
               )}
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.link}>
-              <Text style={[styles.linkText, { color: '#FF6700' }]}>Back 🔙</Text>
             </TouchableOpacity>
           </>
         )}

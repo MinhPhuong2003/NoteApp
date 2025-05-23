@@ -5,9 +5,6 @@ import {
   Alert,
   StyleSheet,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import { Formik } from 'formik';
@@ -17,10 +14,11 @@ import CustomTextInput from '../components/CustomTextInput';
 import useTogglePassword from '../hooks/useTogglePassword';
 import auth from '@react-native-firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Icon from 'react-native-vector-icons/Feather';
 
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string().min(6, 'At least 6 characters').required('Password is required'),
+  email: Yup.string().email('Email không hợp lệ').required('Vui lòng nhập email'),
+  password: Yup.string().min(6, 'Mật khẩu ít nhất 6 ký tự').required('Vui lòng nhập mật khẩu'),
 });
 
 const LoginScreen = ({ navigation }) => {
@@ -32,17 +30,14 @@ const LoginScreen = ({ navigation }) => {
     try {
       const userCredential = await auth().signInWithEmailAndPassword(values.email, values.password);
       const user = userCredential.user;
-      console.log('User logged in:', user.email);
       const userDoc = await firestore().collection('USERS').doc(values.email).get();
       if (userDoc.exists) {
-        const userData = userDoc.data();
         navigation.navigate('TodoList', { userEmail: user.email });
       } else {
-        Alert.alert('Error', 'No additional user data found.');
+        Alert.alert('Lỗi', 'Không tìm thấy thông tin người dùng.');
       }
     } catch (error) {
-      console.error('Login Error:', error);
-      Alert.alert('Error', error.message);
+      Alert.alert('Lỗi', error.message);
     } finally {
       setSubmitting(false);
       setLoading(false);
@@ -50,86 +45,98 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-  <KeyboardAwareScrollView
-    style={{ flex: 1 }}
-    contentContainerStyle={styles.container}
-    keyboardShouldPersistTaps="handled"
-  >
-    <Text style={styles.title}>Welcome Back 👋</Text>
-
-    <Formik
-      initialValues={{ email: '', password: '' }}
-      validationSchema={LoginSchema}
-      onSubmit={handleLogin}
+    <KeyboardAwareScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
     >
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-        isSubmitting,
-      }) => (
-        <View>
-          {/* Username label */}
-          <Text style={styles.label}>🖊️ Email:</Text>
-          <CustomTextInput
-            value={values.email}
-            onChangeText={handleChange('email')}
-            onBlur={handleBlur('email')}
-            placeholder="Email"
-            keyboardType="email-address"
-          />
-          {touched.email && errors.email && (
-            <Text style={styles.error}>⚠️ {errors.email}</Text>
-          )}
+      <Text style={styles.title}>ĐĂNG NHẬP</Text>
 
-          {/* Password label */}
-          <Text style={styles.label}>🔑 Password:</Text>
-          <CustomTextInput
-            value={values.password}
-            onChangeText={handleChange('password')}
-            onBlur={handleBlur('password')}
-            placeholder="Password"
-            secureTextEntry={!showPassword}
-            togglePassword={togglePassword}
-            showPassword={showPassword}
-          />
-          {touched.password && errors.password && (
-            <Text style={styles.error}>⚠️ {errors.password}</Text>
-          )}
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ForgotPassword')}
-            style={styles.forgotPassword}
-          >
-            <Text style={styles.forgotPasswordText}>🔑 Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSubmit}
-            disabled={isSubmitting || loading}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Login 🚀</Text>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={LoginSchema}
+        onSubmit={handleLogin}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          isSubmitting,
+        }) => (
+          <View>
+            <Text style={styles.label}>
+              <Icon name="mail" size={16} /> Email:
+            </Text>
+            <CustomTextInput
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              placeholder="Nhập email"
+              keyboardType="email-address"
+            />
+            {touched.email && errors.email && (
+              <Text style={styles.error}>
+                <Icon name="alert-circle" size={14} color="red" /> {errors.email}
+              </Text>
             )}
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={styles.linkText}>❓ Don't have an account? Register</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </Formik>
-  </KeyboardAwareScrollView>
-);
+            <Text style={styles.label}>
+              <Icon name="lock" size={16} /> Mật khẩu:
+            </Text>
+            <CustomTextInput
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              placeholder="Nhập mật khẩu"
+              secureTextEntry={!showPassword}
+              togglePassword={togglePassword}
+              showPassword={showPassword}
+            />
+            {touched.password && errors.password && (
+              <Text style={styles.error}>
+                <Icon name="alert-circle" size={14} color="red" /> {errors.password}
+              </Text>
+            )}
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ForgotPassword')}
+              style={styles.forgotPassword}
+            >
+              <Text style={styles.forgotPasswordText}>
+                <Icon name="help-circle" size={14} /> Quên mật khẩu?
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSubmit}
+              disabled={isSubmitting || loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>
+                  <Icon name="log-in" size={16} /> Đăng nhập
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.link}
+              onPress={() => navigation.navigate('Register')}
+            >
+              <Text style={styles.linkText}>
+                <Icon name="user-plus" size={14} /> Chưa có tài khoản? Đăng ký
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Formik>
+    </KeyboardAwareScrollView>
+  );
 };
 
 const styles = StyleSheet.create({

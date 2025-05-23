@@ -37,21 +37,21 @@ const AppNavigator = () => {
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerTitle: 'Register' }} />
-      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerTitle: 'Reset Password' }} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerTitle: 'Forgot Password' }} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerTitle: 'REGISTER' }} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerTitle: 'RESET PASSWORD' }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerTitle: 'FORGOT PASSWORD' }} />
       <Stack.Screen name="TodoList" component={TabNavigatorScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="MenuList"
         component={MenuScreen}
         options={{ headerShown: false, presentation: 'transparentModal' }}
       />
-      <Stack.Screen name="EditTodo" component={EditTodoScreen} options={{ headerTitle: 'Edit Todo' }} />
-      <Stack.Screen name="TodoDetail" component={TodoDetailScreen} options={{ headerTitle: 'Todo Detail' }} />
-      <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'Add Todo' }} />
-      <Stack.Screen name="Trash" component={TrashListScreen} options={{ headerTitle: 'Trash' }} />
-      <Stack.Screen name="Favorites" component={FavoriteListScreen} options={{ headerTitle: 'Favorites' }} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerTitle: 'EditProfile' }} />
+      <Stack.Screen name="EditTodo" component={EditTodoScreen} options={{ headerTitle: 'EDIT NOTE' }} />
+      <Stack.Screen name="TodoDetail" component={TodoDetailScreen} options={{ headerTitle: 'NOTE DETAIL' }} />
+      <Stack.Screen name="AddTodoScreen" component={AddTodoScreen} options={{ headerTitle: 'ADD NOTE' }} />
+      <Stack.Screen name="Trash" component={TrashListScreen} options={{ headerTitle: 'TRASH' }} />
+      <Stack.Screen name="Favorites" component={FavoriteListScreen} options={{ headerTitle: 'FAVORITES' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerTitle: 'EDIT PROFILE' }} />
     </Stack.Navigator>
   );
 };

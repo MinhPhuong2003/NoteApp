@@ -5,10 +5,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import auth from '@react-native-firebase/auth';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-// Validation schema with Yup
+// Validation schema với Yup
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
+  email: Yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
 });
 
 const ForgotPasswordScreen = ({ navigation }) => {
@@ -17,8 +18,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     try {
       await auth().sendPasswordResetEmail(email);
       Alert.alert(
-        'Success ✔️', 
-        'A password reset link has been sent to your email. 📧',
+        'Thành công ✔️',
+        'Đường dẫn đặt lại mật khẩu đã được gửi đến email của bạn.',
         [
           {
             text: 'OK',
@@ -27,8 +28,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
         ]
       );
     } catch (error) {
-      console.error('Error details:', error);
-      Alert.alert('Error ❌', `Failed to send reset link: ${error.code} - ${error.message}`);
+      console.error('Chi tiết lỗi:', error);
+      Alert.alert('Lỗi ❌', `Gửi link đặt lại mật khẩu thất bại: ${error.code} - ${error.message}`);
     } finally {
       setSubmitting(false);
     }
@@ -41,10 +42,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
       extraScrollHeight={20}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.title}>Forgot Password 🔑</Text>
-      <Text style={styles.subtitle}>
-        Enter your email to receive a password reset link. 📨
-      </Text>
+      <View style={styles.header}>
+        <MaterialIcons name="vpn-key" size={28} color="#333" />
+        <Text style={styles.title}>QUÊN MẬT KHẨU</Text>
+      </View>
+
+      <View style={styles.subHeader}>
+        <Text style={styles.subtitle}>
+          Nhập email để nhận đường dẫn đặt lại mật khẩu.
+        </Text>
+      </View>
 
       <Formik
         initialValues={{ email: '' }}
@@ -57,27 +64,26 @@ const ForgotPasswordScreen = ({ navigation }) => {
               value={values.email}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
-              placeholder="Email 📧"
+              placeholder="Email"
               style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
             {touched.email && errors.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )}
 
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, isSubmitting && { backgroundColor: '#7aaefc' }]}
               onPress={handleSubmit}
               disabled={isSubmitting}
             >
-              <Text style={styles.buttonText}>Send Reset Link 🔄</Text>
+              <MaterialIcons name="send" size={20} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={styles.buttonText}>Gửi đường dẫn</Text>
             </TouchableOpacity>
           </View>
         )}
       </Formik>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.backText}>Back to Login 🔙</Text>
-      </TouchableOpacity>
     </KeyboardAwareScrollView>
   );
 };
@@ -89,27 +95,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#f9fafc',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
+    marginLeft: 8,
     color: '#333',
+  },
+  subHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
     color: '#666',
+    marginLeft: 6,
+    textAlign: 'center',
   },
   input: {
     marginBottom: 20,
   },
   button: {
+    flexDirection: 'row',
     backgroundColor: '#007bff',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -120,11 +139,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  backText: {
-    textAlign: 'center',
-    color: '#007bff',
-    fontSize: 14,
   },
   errorText: {
     color: 'red',
